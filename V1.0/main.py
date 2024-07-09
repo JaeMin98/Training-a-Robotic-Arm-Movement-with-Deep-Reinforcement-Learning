@@ -6,7 +6,7 @@ import wandb
 import Env
 
 wandb.init(project='Refer2')
-wandb.run.name = 'DDPG_with_Limit'
+wandb.run.name = 'DDPG'
 wandb.run.save()
 
 

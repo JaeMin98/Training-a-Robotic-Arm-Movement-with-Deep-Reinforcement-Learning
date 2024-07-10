@@ -120,15 +120,15 @@ class Ned2_control(object):
         if (self.prev_distance != None ): R_extra = -1 * (distance - self.prev_distance)
         self.prev_distance = distance
 
-        isDone, isTruncated = False, False
+        isDone, isSuccess = False, False
         if(self.time_step >= self.MAX_time_step) or (self.get_endeffector_position()[2] < 0.1):
-            isDone,isTruncated = False, True
+            isDone,isSuccess = True, False
         if(distance <= 0.03):
             R_done = 10
-            isDone,isTruncated = True,False
+            isDone,isSuccess = True,True
 
         totalReward = R_basic + R_done + R_extra
-        return totalReward, isDone,isTruncated
+        return totalReward, isDone,isSuccess
     
     def step(self, angle):
         time_interver = 0.05
@@ -136,10 +136,10 @@ class Ned2_control(object):
         time.sleep(time_interver) #거리에 따라 조절
         self.move_group.stop()
 
-        totalReward,isDone,isTruncated = self.get_reward()
+        totalReward,isDone,isSuccess = self.get_reward()
         current_state = self.get_state()
 
-        return current_state,totalReward,isDone, isTruncated
+        return current_state,totalReward,isDone, isSuccess
     
     def set_random_target(self):
         random_pose = self.move_group.get_random_pose()

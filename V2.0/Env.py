@@ -11,7 +11,6 @@ from moveit_msgs.msg import RobotState
 from tf.transformations import quaternion_matrix
 from gazebo_msgs.msg import ModelState 
 from gazebo_msgs.srv import SetModelState
-import config
 import math
 import time
 import numpy as np
@@ -45,7 +44,7 @@ class Ned2_control(object):
 
         # time_step
         self.time_step = 0
-        self.MAX_time_step = config.MAX_STEPS
+        self.MAX_time_step = 200
 
         self.prev_linear_velocity = [0, 0, 0]
         self.prev_distance = None
@@ -89,7 +88,7 @@ class Ned2_control(object):
         try:
             self.move_group.go(joint, wait=self.Iswait)
         except:
-            print("move_group.go EXCEPT, ", joint)
+            # print("move_group.go EXCEPT, ", joint)
             self.isLimited = True
 
         self.time_step += 1
@@ -122,7 +121,7 @@ class Ned2_control(object):
         self.prev_distance = distance
 
         isDone, isTruncated = False, False
-        if(self.time_step >= self.MAX_time_step) or (self.isLimited == True) or (self.get_endeffector_position()[2] < 0.1):
+        if(self.time_step >= self.MAX_time_step) or (self.get_endeffector_position()[2] < 0.1):
             isDone,isTruncated = False, True
         if(distance <= 0.03):
             R_done = 10

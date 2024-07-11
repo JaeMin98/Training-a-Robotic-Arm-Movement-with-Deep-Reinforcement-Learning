@@ -108,7 +108,7 @@ class Ned2_control(object):
     
     def get_state(self):
         joint = self.move_group.get_current_joint_values()
-        state = joint[0:3] + self.target
+        state = joint[0:3] + self.get_endeffector_position() + self.target
         return state
 
     def get_reward(self):
@@ -121,10 +121,17 @@ class Ned2_control(object):
         self.prev_distance = distance
 
         isDone, isSuccess = False, False
-        if(self.time_step >= self.MAX_time_step) or (self.get_endeffector_position()[2] < 0.1):
+
+        if(self.get_endeffector_position()[2] < 0.1) or (self.isLimited == True):
+            R_done = -50
             isDone,isSuccess = True, False
-        if(distance <= 0.03):
+     
+        if(self.time_step >= self.MAX_time_step):
             R_done = 10
+            isDone,isSuccess = True, False
+
+        if(distance <= 0.05):
+            R_done = 50
             isDone,isSuccess = True,True
 
         totalReward = R_basic + R_done + R_extra

@@ -11,13 +11,14 @@ import torch
 import torch.nn.functional as F
 import torch.optim as optim
 
-BUFFER_SIZE = int(1e6)  # replay buffer size
+BUFFER_SIZE = 1000000  # replay buffer size
 BATCH_SIZE = 1024       # minibatch size
 GAMMA = 0.99            # discount factor
-TAU = 1e-3              # for soft update of target parameters
-LR_ACTOR = 1e-4         # learning rate of the actor 
-LR_CRITIC = 1e-3        # learning rate of the critic
+TAU = 5e-3              # for soft update of target parameters
+LR_ACTOR = 0.00015         # learning rate of the actor 
+LR_CRITIC = 0.0003        # learning rate of the critic
 WEIGHT_DECAY = 0        # L2 weight decay
+UPDATE_INTERVER = 10
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -53,16 +54,20 @@ class Agent():
         # Replay memory
         self.memory = ReplayBuffer(action_size, BUFFER_SIZE, BATCH_SIZE, random_seed)
     
-    def step(self, states, actions, rewards, next_states, dones):
+    def step(self, states, actions, rewards, next_states, dones, timestep):
         """Save experience in replay memory, and use random sample from buffer to learn."""
         # Save experience / reward
         for state, action, reward, next_state, done in zip(states, actions, rewards, next_states, dones):
             self.memory.add(state, action, reward, next_state, done) 
 
+        critic_loss = None
         # Learn, if enough samples are available in memory
         if len(self.memory) > BATCH_SIZE:
-            experiences = self.memory.sample()
-            self.learn(experiences, GAMMA)
+            if((timestep % UPDATE_INTERVER) == 0):
+                experiences = self.memory.sample()
+                critic_loss = self.learn(experiences, GAMMA)
+
+        return critic_loss
 
     def act(self, state, add_noise=True):
         """Returns actions for given state as per current policy."""
@@ -117,7 +122,9 @@ class Agent():
 
         # ----------------------- update target networks ----------------------- #
         self.soft_update(self.critic_local, self.critic_target, TAU)
-        self.soft_update(self.actor_local, self.actor_target, TAU)                     
+        self.soft_update(self.actor_local, self.actor_target, TAU) 
+
+        return critic_loss              
 
     def soft_update(self, local_model, target_model, tau):
         """Soft update model parameters.

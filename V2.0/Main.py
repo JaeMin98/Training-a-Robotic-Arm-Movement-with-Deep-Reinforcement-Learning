@@ -29,7 +29,7 @@ def ddpg(n_episodes=40000, max_t=200):
             if len(agent.memory) < agent.memory.batch_size * 10:
                 actions = np.random.uniform(-1, 1, size=3)  # 랜덤 액션
             else:
-                actions = agent.act(np.array(states), add_noise=True)
+                actions = agent.act(np.array(states), add_noise=False)
             next_states, rewards, dones, success = env.step(actions)  # 새로운 env.step() 반환 값에 맞춰 수정
             ciritic_loss = agent.step(np.array([states]), np.array([actions]), np.array([rewards]), np.array([next_states]), np.array([dones]), timestep)
             if(ciritic_loss != None) : episode_ciritic_loss = ciritic_loss

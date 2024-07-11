@@ -18,7 +18,7 @@ TAU = 5e-3              # for soft update of target parameters
 LR_ACTOR = 0.00015         # learning rate of the actor 
 LR_CRITIC = 0.0003        # learning rate of the critic
 WEIGHT_DECAY = 0        # L2 weight decay
-UPDATE_INTERVER = 10
+UPDATE_INTERVER = 2
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 

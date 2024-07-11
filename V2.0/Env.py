@@ -123,11 +123,11 @@ class Ned2_control(object):
         isDone, isSuccess = False, False
 
         if(self.get_endeffector_position()[2] < 0.1) or (self.isLimited == True):
-            R_done = -50
+            R_done = -20
             isDone,isSuccess = True, False
      
         if(self.time_step >= self.MAX_time_step):
-            R_done = 10
+            R_done = 0
             isDone,isSuccess = True, False
 
         if(distance <= 0.05):

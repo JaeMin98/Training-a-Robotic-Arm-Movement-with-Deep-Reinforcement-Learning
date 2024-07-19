@@ -13,7 +13,7 @@ wandb.run.name = 'DDPG_V2.0'
 wandb.run.save()
 
 env = Env.Ned2_control()
-agent = Agent(state_size=9, action_size=3, random_seed=123456)
+agent = Agent(state_size=6, action_size=3, random_seed=123456)
 
 episode_success, success_rate_list = [], []
 

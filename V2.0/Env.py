@@ -108,7 +108,7 @@ class Ned2_control(object):
     
     def get_state(self):
         joint = self.move_group.get_current_joint_values()
-        state = joint[0:3] + self.get_endeffector_position() + self.target
+        state = joint[0:3] + self.target
         return state
 
     def get_reward(self):

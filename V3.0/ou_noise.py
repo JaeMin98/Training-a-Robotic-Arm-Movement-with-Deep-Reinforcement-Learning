@@ -9,7 +9,7 @@ class OUNoise:
     Used to add time-correlated noise to the actions for exploration.
     """
 
-    def __init__(self, size, seed, mu=CONFIG.MU, theta=CONFIG.THETA, sigma=CONFIG.SIGMA):
+    def __init__(self, size, seed, mu=CONFIG['MU'], theta=CONFIG['THETA'], sigma=CONFIG['SIGMA']):
         """
         Initialize parameters and noise process.
         

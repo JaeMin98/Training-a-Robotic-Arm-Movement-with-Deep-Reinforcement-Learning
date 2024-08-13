@@ -21,14 +21,13 @@ class Ned2_control(object):
         super(Ned2_control, self).__init__()
         moveit_commander.roscpp_initialize(sys.argv)
         rospy.init_node('move_group_python_interface', anonymous=True)
-        group_name = "ned2" #moveit의 move_group name >> moveit assitant로 패키지 생성 시 정의
-        move_group = moveit_commander.MoveGroupCommander(group_name) # move_group node로 동작을 계획하고,  실행 
+        group_name = "ned2"
+        move_group = moveit_commander.MoveGroupCommander(group_name)
         self.robot = moveit_commander.RobotCommander()
         self.move_group = move_group
 
-        self.target = [0,0,0] #target 위치
+        self.target = [0,0,0]
 
-        # action 관련
         self.isLimited = False
         self.Iswait = False
         self.Limit_joint=[[-171.88,171.88],
@@ -39,34 +38,19 @@ class Ned2_control(object):
                             [-144.96,144.96]]
         self.weight = [6.8, 3, 3.32, 4.8, 4.4, 5.8]
 
-        # 오류 최소화를 위한 변수
-        self.prev_state = []
-
-        # time_step
         self.time_step = 0
         self.MAX_time_step = 200
 
-        self.prev_linear_velocity = [0, 0, 0]
         self.prev_distance = None
 
     def Degree_to_Radian(self,Dinput):
-        Radian_list = []
-        for i in Dinput:
-            Radian_list.append(i* (math.pi/180.0))
-        return Radian_list
+        return np.array(Dinput) * (np.pi / 180.0)
 
     def Radian_to_Degree(self,Rinput):
-        Degree_list = []
-        for i in Rinput:
-            Degree_list.append(i* (180.0/math.pi))
-        return Degree_list
+        return np.array(Rinput) * (180.0 / np.pi)
     
     def calc_distance(self, point1, point2):
-        # 각 좌표의 차이를 제곱한 후 더한 값을 제곱근한다.
-        distance = math.sqrt((point1[0] - point2[0]) ** 2 +
-                            (point1[1] - point2[1]) ** 2 +
-                            (point1[2] - point2[2]) ** 2)
-        return distance
+        return np.linalg.norm(np.array(point1) - np.array(point2))
 
     def action(self,angle):  # angle 각도로 이동 (angle 은 크기 6의 리스트 형태)
         joint = self.move_group.get_current_joint_values()

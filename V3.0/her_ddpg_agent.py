@@ -1,6 +1,5 @@
 import numpy as np
 import random
-from typing import Tuple
 
 import torch
 import torch.nn.functional as F
@@ -14,20 +13,21 @@ from config import CONFIG
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class HERDDPGAgent:
-    def __init__(self, state_size: int, action_size: int, random_seed: int) -> None:
+    def __init__(self, state_size, action_size, random_seed):
         self.state_size = state_size
         self.action_size = action_size
+        self.goal_size = CONFIG['GOAL_SIZE']
         self.seed = random.seed(random_seed)
         self.agent_critic_loss = None
 
         # Actor Network (w/ Target Network)
-        self.actor_local = Actor(state_size + 3, action_size, random_seed).to(device)  # +3 for goal
-        self.actor_target = Actor(state_size + 3, action_size, random_seed).to(device)
+        self.actor_local = Actor(state_size + self.goal_size, action_size, random_seed).to(device)
+        self.actor_target = Actor(state_size + self.goal_size, action_size, random_seed).to(device)
         self.actor_optimizer = optim.Adam(self.actor_local.parameters(), lr=CONFIG['LR_ACTOR'])
 
         # Critic Network (w/ Target Network)
-        self.critic_local = Critic(state_size + 3, action_size, random_seed).to(device)  # +3 for goal
-        self.critic_target = Critic(state_size + 3, action_size, random_seed).to(device)
+        self.critic_local = Critic(state_size + self.goal_size, action_size, random_seed).to(device)
+        self.critic_target = Critic(state_size + self.goal_size, action_size, random_seed).to(device)
         self.critic_optimizer = optim.Adam(self.critic_local.parameters(), lr=CONFIG['LR_CRITIC'], weight_decay=CONFIG['WEIGHT_DECAY'])
 
         # Noise process
@@ -36,7 +36,7 @@ class HERDDPGAgent:
         # Replay memory
         self.memory = HERReplayBuffer(action_size, CONFIG['BUFFER_SIZE'], CONFIG['BATCH_SIZE'], random_seed)
     
-    def step(self, state: np.ndarray, action: np.ndarray, reward: float, next_state: np.ndarray, done: bool, goal: np.ndarray, timestep: int) -> None:
+    def step(self, state, action, reward, next_state, done, goal, timestep):
         # Save experience in replay memory
         self.memory.add(state, action, reward, next_state, done, goal)
 
@@ -45,7 +45,7 @@ class HERDDPGAgent:
             experiences = self.memory.sample_her_batch()
             self.learn(experiences, CONFIG['GAMMA'])
 
-    def act(self, state: np.ndarray, goal: np.ndarray, add_noise: bool = True) -> np.ndarray:
+    def act(self, state, goal, add_noise=True):
         state_goal = np.concatenate([state, goal])
         state_goal = torch.from_numpy(state_goal).float().to(device)
         self.actor_local.eval()
@@ -56,10 +56,10 @@ class HERDDPGAgent:
             action += self.noise.sample()
         return np.clip(action, -1, 1)
     
-    def reset(self) -> None:
+    def reset(self):
         self.noise.reset()
 
-    def learn(self, experiences: Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor], gamma: float) -> None:
+    def learn(self, experiences, gamma):
         states, actions, rewards, next_states, dones, goals = experiences
 
         # Concatenate states and goals
@@ -95,6 +95,6 @@ class HERDDPGAgent:
 
         self.agent_critic_loss = critic_loss.item()
 
-    def soft_update(self, local_model: torch.nn.Module, target_model: torch.nn.Module, tau: float) -> None:
+    def soft_update(self, local_model, target_model, tau):
         for target_param, local_param in zip(target_model.parameters(), local_model.parameters()):
             target_param.data.copy_(tau * local_param.data + (1.0 - tau) * target_param.data)

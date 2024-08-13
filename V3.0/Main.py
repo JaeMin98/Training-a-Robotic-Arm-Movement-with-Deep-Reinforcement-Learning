@@ -4,17 +4,19 @@ from her_ddpg_agent import HERDDPGAgent
 import torch
 import wandb
 from config import CONFIG
+import os
 
-def init_wandb() -> None:
-    """Initialize Weights & Biases for experiment tracking."""
+def init_wandb():
     wandb.init(project=CONFIG['PROJECT_NAME'], config=CONFIG)
     wandb.run.name = CONFIG['RUN_NAME']
     for key, value in CONFIG.items():
         wandb.config[key] = value
     wandb.run.save()
 
-def save_model(agent, episode, success) -> bool:
-    """Save the trained model and check if training should be terminated."""
+def save_model(agent, episode, success):
+    if not os.path.exists('./models'):
+        os.makedirs('./models')
+    
     if success:
         torch.save({
             'actor': agent.actor_local.state_dict(),
@@ -29,26 +31,22 @@ def save_model(agent, episode, success) -> bool:
         return True
     return False
 
-def her_ddpg(n_episodes = CONFIG['N_EPISODES'], max_t = CONFIG['MAX_T']) -> None:
-    """Implement the HER-DDPG algorithm."""
+def her_ddpg(n_episodes = CONFIG['N_EPISODES'], max_t = CONFIG['MAX_T']):
     for i_episode in range(1, n_episodes+1):
         env.reset()
         state = env.get_state()
-        goal = env.target  # Assuming env.target is the goal
+        goal = env.target
         agent.reset()
 
         episode_reward = 0
         for timestep in range(max_t):
-            # Choose action
             if len(agent.memory) < agent.memory.batch_size * 10:
                 action = np.random.uniform(-1, 1, size=3)
             else:
                 action = agent.act(np.array(state), goal, add_noise=True)
 
-            # Take action and observe next state and reward
             next_state, reward, done, success = env.step(action)
 
-            # Store experience in replay memory and learn
             agent.step(state, action, reward, next_state, done, goal, timestep)
 
             state = next_state
@@ -57,12 +55,10 @@ def her_ddpg(n_episodes = CONFIG['N_EPISODES'], max_t = CONFIG['MAX_T']) -> None
             if done:
                 break
 
-        # Update success rate
         episode_success.append(success)
         success_rate = np.mean(episode_success[-min(10, len(episode_success)):])
         success_rate_list.append(success_rate)
 
-        # Log data to wandb
         log_data = {
             'episode_reward': episode_reward,
             'success_rate': success_rate,
@@ -75,21 +71,16 @@ def her_ddpg(n_episodes = CONFIG['N_EPISODES'], max_t = CONFIG['MAX_T']) -> None
 
         print(f"Episode: {i_episode}, Reward: {episode_reward}, Success Rate: {success_rate:.2f}")
 
-        # Check if training should be terminated
         if save_model(agent, i_episode, success):
             print("Training completed successfully!")
             break
 
 if __name__ == "__main__":
-    # Initialize wandb
     init_wandb()
 
-    # Create environment and agent
     env = Env.Ned2_control()
     agent = HERDDPGAgent(state_size=6, action_size=3, random_seed=CONFIG['RANDOM_SEED'])
 
-    # Initialize success tracking lists
     episode_success, success_rate_list = [], []
 
-    # Start training
     her_ddpg()

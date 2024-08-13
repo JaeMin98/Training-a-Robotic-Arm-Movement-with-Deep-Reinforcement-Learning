@@ -25,4 +25,8 @@ CONFIG = {
     # Wandb parameters
     'PROJECT_NAME': 'RobotArm',
     'RUN_NAME': 'DDPG_HER',
+
+    # Model parameters
+    'ACTOR_LAYERS': [64, 64],
+    'CRITIC_LAYERS': [64, 64],
 }

@@ -6,7 +6,7 @@ import torch
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class HERReplayBuffer:
-    def __init__(self, action_size, buffer_size, batch_size, seed, k_future=4) -> None:
+    def __init__(self, action_size, buffer_size, batch_size, seed, k_future=4):
         self.action_size = action_size
         self.memory = deque(maxlen=buffer_size)
         self.batch_size = batch_size
@@ -14,7 +14,7 @@ class HERReplayBuffer:
         self.seed = random.seed(seed)
         self.k_future = k_future
     
-    def add(self, state, action, reward, next_state, done, goal) -> None:
+    def add(self, state, action, reward, next_state, done, goal):
         e = self.experience(state, action, reward, next_state, done, goal)
         self.memory.append(e)
     
@@ -80,5 +80,5 @@ class HERReplayBuffer:
         # For example, if the distance is less than a threshold
         return np.linalg.norm(self.extract_goal(state) - goal) < 0.05
 
-    def __len__(self) -> int:
+    def __len__(self):
         return len(self.memory)

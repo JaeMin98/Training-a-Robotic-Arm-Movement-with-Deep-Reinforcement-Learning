@@ -12,11 +12,7 @@ from gazebo_msgs.srv import SetModelState
 import time
 
 class Ned2_control:
-    def __init__(self) -> None:
-        """
-        Initialize the Ned2 robot control environment.
-        Sets up ROS nodes, move groups, and initializes various parameters for the robot control.
-        """
+    def __init__(self):
         moveit_commander.roscpp_initialize(sys.argv)
         rospy.init_node('move_group_python_interface', anonymous=True)
         self.move_group = moveit_commander.MoveGroupCommander("ned2")
@@ -38,25 +34,18 @@ class Ned2_control:
         self.prev_distance = None
 
     @staticmethod
-    def Degree_to_Radian(Dinput) -> float:
-        """Convert degrees to radians."""
+    def Degree_to_Radian(Dinput):
         return np.deg2rad(Dinput)
 
     @staticmethod
-    def Radian_to_Degree(Rinput) -> float:
-        """Convert radians to degrees."""
+    def Radian_to_Degree(Rinput):
         return np.rad2deg(Rinput)
     
     @staticmethod
-    def calc_distance(point1, point2) -> float:
-        """Calculate Euclidean distance between two points."""
+    def calc_distance(point1, point2):
         return np.linalg.norm(np.array(point1) - np.array(point2))
 
-    def action(self, angle) -> None:
-        """
-        Execute an action by moving the robot's joints.
-        angle (array-like): Change in joint angles to be applied
-        """
+    def action(self, angle):
         joint = np.array(self.move_group.get_current_joint_values())
         angle = self.Degree_to_Radian(angle)
 
@@ -72,11 +61,7 @@ class Ned2_control:
 
         self.time_step += 1
             
-    def reset(self) -> None:
-        """
-        Reset the environment to its initial state.
-        This includes resetting the robot position, time step, and target.
-        """
+    def reset(self):
         self.time_step = 0
         self.prev_distance = None
         self.isLimited = False
@@ -84,17 +69,14 @@ class Ned2_control:
         self.set_random_target()
     
     def get_endeffector_position(self):
-        """Get the current position of the robot's end effector."""
         pose = self.move_group.get_current_pose().pose
         return [pose.position.x, pose.position.y, pose.position.z]
     
     def get_state(self):
-        """Get the current state of the environment."""
         joint = self.move_group.get_current_joint_values()
         return joint[:3] + self.target.tolist()
 
     def get_reward(self):
-        """Calculate the reward based on the current state of the environment."""
         distance = self.calc_distance(self.get_endeffector_position(), self.target)
 
         R_basic = -distance
@@ -119,7 +101,6 @@ class Ned2_control:
         return totalReward, isDone, isSuccess
     
     def step(self, angle):
-        """Take a step in the environment by executing an action and observing the result."""
         time_interver = 0.05
         self.action(angle)
         time.sleep(time_interver)
@@ -130,8 +111,7 @@ class Ned2_control:
 
         return current_state, totalReward, isDone, isSuccess
     
-    def set_random_target(self) -> None:
-        """Set a random target position for the robot to reach."""
+    def set_random_target(self):
         while True:
             random_pose = self.move_group.get_random_pose()
             if random_pose.pose.position.z > 0.1:
@@ -139,8 +119,7 @@ class Ned2_control:
         self.target = np.array([random_pose.pose.position.x, random_pose.pose.position.y, random_pose.pose.position.z])
         self.target_reset()
 
-    def target_reset(self) -> None:
-        """Reset the target object's position in the simulation environment."""
+    def target_reset(self):
         state_msg = ModelState()
         state_msg.model_name = 'cube'
         state_msg.pose.position.x, state_msg.pose.position.y, state_msg.pose.position.z = self.target

@@ -6,7 +6,8 @@ import torch
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class HERReplayBuffer:
-    def __init__(self, action_size, buffer_size, batch_size, seed, k_future=4):
+    def __init__(self, env, action_size, buffer_size, batch_size, seed, k_future=4):
+        self.env = env
         self.action_size = action_size
         self.memory = deque(maxlen=buffer_size)
         self.batch_size = batch_size
@@ -48,9 +49,8 @@ class HERReplayBuffer:
                     continue
                 future_state = future_experience.next_state
                 
-                achieved_goal = self.extract_goal(future_state)
-                reward = self.compute_reward(next_state, achieved_goal)
-                done = self.is_success(next_state, achieved_goal)
+                achieved_goal = self.env.get_endeffector_position()
+                reward, done = self.compute_reward(achieved_goal)
                 
                 batch.append((state, action, reward, next_state, done, achieved_goal))
         
@@ -65,20 +65,10 @@ class HERReplayBuffer:
 
         return (states, actions, rewards, next_states, dones, goals)
 
-    def extract_goal(self, state):
-        # Implement this based on your state representation
-        # For example, if the goal is the end-effector position:
-        return state[:3]  # Assuming the first 3 elements are x, y, z coordinates
-
-    def compute_reward(self, state, goal):
-        # Implement this based on your reward function
-        # For example, negative distance between current state and goal
-        return -np.linalg.norm(self.extract_goal(state) - goal)
-
-    def is_success(self, state, goal):
-        # Implement this based on your success criteria
-        # For example, if the distance is less than a threshold
-        return np.linalg.norm(self.extract_goal(state) - goal) < 0.05
+    def compute_reward(self, goal):
+        self.env.target = goal  # 임시로 목표 설정
+        reward, _, is_success = self.env.get_reward()
+        return reward , is_success
 
     def __len__(self):
         return len(self.memory)

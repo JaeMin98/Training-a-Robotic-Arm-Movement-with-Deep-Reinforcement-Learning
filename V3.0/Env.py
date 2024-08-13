@@ -74,7 +74,7 @@ class Ned2_control:
     
     def get_state(self):
         joint = self.move_group.get_current_joint_values()
-        return joint[:3] + self.target.tolist()
+        return joint[:3] + self.get_endeffector_position() +  self.target.tolist()
 
     def get_reward(self):
         distance = self.calc_distance(self.get_endeffector_position(), self.target)

@@ -23,5 +23,5 @@ CONFIG = {
 
     # Wandb parameters
     'PROJECT_NAME': 'RobotArm',
-    'RUN_NAME': 'DDPG',
+    'RUN_NAME': 'DDPG_HER',
 }

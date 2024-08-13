@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-def hidden_init(layer) -> tuple[float, float]:
+def hidden_init(layer):
     """
     Provide limits for Uniform distribution initialization of layer weights.
     

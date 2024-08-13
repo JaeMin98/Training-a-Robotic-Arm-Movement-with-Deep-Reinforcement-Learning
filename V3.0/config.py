@@ -10,7 +10,7 @@ CONFIG = {
     'UPDATE_INTERVAL': 2,
 
     # OU Noise parameters
-    'MU': 0.,
+    'MU': 0.0,
     'THETA': 0.15,
     'SIGMA': 0.2,
 

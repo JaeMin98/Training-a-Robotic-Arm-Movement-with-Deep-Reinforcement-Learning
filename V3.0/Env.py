@@ -83,17 +83,17 @@ class Ned2_control:
         self.move_group.go([0]*6, wait=True)
         self.set_random_target()
     
-    def get_endeffector_position(self) -> list[float]:
+    def get_endeffector_position(self):
         """Get the current position of the robot's end effector."""
         pose = self.move_group.get_current_pose().pose
         return [pose.position.x, pose.position.y, pose.position.z]
     
-    def get_state(self) -> list[float]:
+    def get_state(self):
         """Get the current state of the environment."""
         joint = self.move_group.get_current_joint_values()
         return joint[:3] + self.target.tolist()
 
-    def get_reward(self) -> tuple[float, bool, bool]:
+    def get_reward(self):
         """Calculate the reward based on the current state of the environment."""
         distance = self.calc_distance(self.get_endeffector_position(), self.target)
 
@@ -118,7 +118,7 @@ class Ned2_control:
         totalReward = R_basic + R_done + R_extra
         return totalReward, isDone, isSuccess
     
-    def step(self, angle) -> tuple[list[float], float, bool, bool]:
+    def step(self, angle):
         """Take a step in the environment by executing an action and observing the result."""
         time_interver = 0.05
         self.action(angle)

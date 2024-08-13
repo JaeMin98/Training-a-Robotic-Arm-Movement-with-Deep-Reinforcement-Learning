@@ -1,7 +1,7 @@
 import numpy as np
 import random
 import copy
-import config
+from config import CONFIG
 
 class OUNoise:
     """
@@ -9,7 +9,7 @@ class OUNoise:
     Used to add time-correlated noise to the actions for exploration.
     """
 
-    def __init__(self, size, seed, mu=config.MU, theta=config.THETA, sigma=config.SIGMA):
+    def __init__(self, size, seed, mu=CONFIG.MU, theta=CONFIG.THETA, sigma=CONFIG.SIGMA):
         """
         Initialize parameters and noise process.
         

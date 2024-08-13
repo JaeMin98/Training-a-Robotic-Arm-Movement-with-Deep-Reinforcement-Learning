@@ -20,6 +20,7 @@ CONFIG = {
     # Training parameters
     'N_EPISODES': 40000,
     'MAX_T': 200,
+    'RANDOM_SEED': 123456,
 
     # Wandb parameters
     'PROJECT_NAME': 'RobotArm',

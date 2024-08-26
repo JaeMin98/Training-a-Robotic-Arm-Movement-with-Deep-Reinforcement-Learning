@@ -13,7 +13,7 @@ from config import CONFIG
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class HERDDPGAgent:
-    def __init__(self,env, state_size, action_size, random_seed):
+    def __init__(self, state_size, action_size, random_seed):
         self.state_size = state_size
         self.action_size = action_size
         self.goal_size = CONFIG['GOAL_SIZE']
@@ -34,7 +34,7 @@ class HERDDPGAgent:
         self.noise = OUNoise(action_size, random_seed)
 
         # Replay memory
-        self.memory = HERReplayBuffer(env, action_size, CONFIG['BUFFER_SIZE'], CONFIG['BATCH_SIZE'], random_seed)
+        self.memory = HERReplayBuffer(action_size, CONFIG['BUFFER_SIZE'], CONFIG['BATCH_SIZE'], random_seed)
     
     def step(self, state, action, reward, next_state, done, goal, timestep):
         # Save experience in replay memory

@@ -48,8 +48,8 @@ class HERReplayBuffer:
                     continue
                 future_state = future_experience.next_state
                 
-                achieved_goal = state[3:6]
-                reward, done, _ = self.compute_reward(achieved_goal, state)
+                achieved_goal = future_state[3:6]
+                reward, done, _ = self.compute_reward(achieved_goal, future_state)
                 
                 batch.append((state, action, reward, next_state, done, achieved_goal))
         
@@ -64,7 +64,7 @@ class HERReplayBuffer:
 
         return (states, actions, rewards, next_states, dones, goals)
     
-    def calc_distance(point1, point2):
+    def calc_distance(self, point1, point2):
         return np.linalg.norm(np.array(point1) - np.array(point2))
     
     def compute_reward(self, achieved_goal, state):

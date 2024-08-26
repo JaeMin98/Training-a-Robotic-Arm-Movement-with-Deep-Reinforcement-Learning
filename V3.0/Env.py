@@ -10,6 +10,7 @@ from tf.transformations import quaternion_matrix
 from gazebo_msgs.msg import ModelState 
 from gazebo_msgs.srv import SetModelState
 import time
+import torch
 
 class Ned2_control:
     def __init__(self):
@@ -74,7 +75,13 @@ class Ned2_control:
     
     def get_state(self):
         joint = self.move_group.get_current_joint_values()
-        return joint[:3] + self.get_endeffector_position() +  self.target.tolist()
+
+        try:
+            xyz_target = self.target.tolist()
+        except:
+            xyz_target = self.target
+
+        return joint[:3] + self.get_endeffector_position() +  xyz_target
 
     def get_reward(self):
         distance = self.calc_distance(self.get_endeffector_position(), self.target)

@@ -8,6 +8,7 @@ CONFIG = {
     'LR_CRITIC': 3e-4,
     'WEIGHT_DECAY': 0,
     'UPDATE_INTERVAL': 2,
+    'GOAL_SIZE': 3,
 
     # OU Noise parameters
     'MU': 0.0,

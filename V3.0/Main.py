@@ -79,7 +79,7 @@ if __name__ == "__main__":
     init_wandb()
 
     env = Env.Ned2_control()
-    agent = HERDDPGAgent(state_size=9, action_size=3, random_seed=CONFIG['RANDOM_SEED'])
+    agent = HERDDPGAgent(env, state_size=9, action_size=3, random_seed=CONFIG['RANDOM_SEED'])
 
     episode_success, success_rate_list = [], []
 

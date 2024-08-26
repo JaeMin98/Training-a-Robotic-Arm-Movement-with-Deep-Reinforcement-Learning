@@ -6,8 +6,7 @@ import torch
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class HERReplayBuffer:
-    def __init__(self, env, action_size, buffer_size, batch_size, seed, k_future=4):
-        self.env = env
+    def __init__(self, action_size, buffer_size, batch_size, seed, k_future=4):
         self.action_size = action_size
         self.memory = deque(maxlen=buffer_size)
         self.batch_size = batch_size
@@ -49,8 +48,8 @@ class HERReplayBuffer:
                     continue
                 future_state = future_experience.next_state
                 
-                achieved_goal = self.env.get_endeffector_position()
-                reward, done = self.compute_reward(achieved_goal)
+                achieved_goal = state[3:6]
+                reward, done, _ = self.compute_reward(achieved_goal, state)
                 
                 batch.append((state, action, reward, next_state, done, achieved_goal))
         
@@ -64,11 +63,25 @@ class HERReplayBuffer:
         goals = torch.from_numpy(np.vstack(goals)).float().to(device)
 
         return (states, actions, rewards, next_states, dones, goals)
+    
+    def calc_distance(point1, point2):
+        return np.linalg.norm(np.array(point1) - np.array(point2))
+    
+    def compute_reward(self, achieved_goal, state):
+        distance = self.calc_distance(state[3:6], achieved_goal)
 
-    def compute_reward(self, goal):
-        self.env.target = goal  # 임시로 목표 설정
-        reward, _, is_success = self.env.get_reward()
-        return reward , is_success
+        R_basic = -distance
+        R_done = 0
+
+        isDone, isSuccess = False, False
+
+        if distance <= 0.05:
+            R_done = 50
+            isDone, isSuccess = True, True
+
+        totalReward = R_basic + R_done
+
+        return totalReward, isDone, isSuccess
 
     def __len__(self):
         return len(self.memory)

@@ -26,7 +26,7 @@ def ddpg(n_episodes=40000, max_t=200):
             else:
                 actions = agent.act(np.array(states), add_noise=True)
             next_states, rewards, dones, success = env.step(actions)
-            agent.step(states, actions, rewards, next_states, dones, timestep)
+            agent.step(np.array([states]), np.array([actions]), np.array([rewards]), np.array([next_states]), np.array([dones]), timestep)
             states = next_states
             scores += rewards
             if np.any(dones):
@@ -41,8 +41,8 @@ def ddpg(n_episodes=40000, max_t=200):
             'success_rate': success_rate,
             'memory_size': len(agent.memory),
         }
-        if agent.critic_loss is not None:
-            log_data['critic_loss'] = agent.critic_loss
+        if agent.agent_critic_loss is not None:
+            log_data['critic_loss'] = agent.agent_critic_loss
 
         wandb.log(log_data, step=i_episode)
 

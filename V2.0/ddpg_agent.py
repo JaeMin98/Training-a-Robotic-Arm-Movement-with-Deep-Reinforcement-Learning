@@ -61,7 +61,6 @@ class Agent():
         for state, action, reward, next_state, done in zip(states, actions, rewards, next_states, dones):
             self.memory.add(state, action, reward, next_state, done) 
 
-        critic_loss = None
         # Learn, if enough samples are available in memory
         if len(self.memory) > BATCH_SIZE:
             if((timestep % UPDATE_INTERVER) == 0):

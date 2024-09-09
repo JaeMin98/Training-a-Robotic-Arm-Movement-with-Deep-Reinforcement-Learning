@@ -5,7 +5,7 @@ import torch
 import wandb
 
 wandb.init(project='Refer2')
-wandb.run.name = 'DDPG_V2.0'
+wandb.run.name = 'H2017_DDPG_V2.0'
 wandb.run.save()
 
 env = Env.Ned2_control()

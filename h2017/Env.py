@@ -72,8 +72,10 @@ class Ned2_control(object):
             elif(self.Limit_joint[i][0] > joint[i]):
                 joint[i] = self.Limit_joint[i][0]
 
-
-        plan = self.move_group.go(joint, wait=self.Iswait)
+        try:
+            plan = self.move_group.go(joint, wait=self.Iswait)
+        except:
+            plan = False
 
         self.collision_detected = not plan
         self.time_step += 1

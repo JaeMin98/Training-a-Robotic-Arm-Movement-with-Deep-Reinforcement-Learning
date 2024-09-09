@@ -26,8 +26,9 @@ def ddpg(n_episodes=40000, max_t=200):
             else:
                 actions = agent.act(np.array(states), add_noise=True)
             next_states, rewards, dones, success = env.step(actions)
-            # agent.step(np.array([states]), np.array([actions]), np.array([rewards]), np.array([next_states]), np.array([dones]), timestep)
-            agent.step(states, actions, rewards, next_states, dones, timestep)
+            # agent.step(np.array(states), np.array(actions), np.array(rewards), np.array(next_states), np.array(dones), timestep)
+            agent.step(np.array([states]), np.array([actions]), np.array([rewards]), np.array([next_states]), np.array([dones]), timestep)
+            # agent.step(states, actions, rewards, next_states, dones, timestep)
             states = next_states
             scores += rewards
             if np.any(dones):
